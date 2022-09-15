@@ -1,0 +1,29 @@
+{
+  "name": "sofi-sidang-scrape",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node ./main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ghufr/sofi-sidang-scrape.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ghufr/sofi-sidang-scrape/issues"
+  },
+  "type": "module",
+  "homepage": "https://github.com/ghufr/sofi-sidang-scrape#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "axios-cookiejar-support": "^4.0.3",
+    "cheerio": "^1.0.0-rc.12",
+    "csv-stringify": "^6.2.0",
+    "dotenv": "^16.0.2",
+    "querystring": "^0.2.1",
+    "tough-cookie": "^4.1.2"
+  }
+}
