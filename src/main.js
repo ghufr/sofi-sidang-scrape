@@ -3,6 +3,7 @@ dotenv.config();
 
 import * as cheerio from 'cheerio';
 
+import fs from 'fs';
 import axios from 'axios';
 import querystring from 'querystring';
 import { stringify } from 'csv-stringify';
@@ -11,11 +12,12 @@ import { wrapper } from 'axios-cookiejar-support';
 import { CookieJar } from 'tough-cookie';
 import { sleep } from './utils.js';
 
-import fs from 'fs';
+import normalize from './normalize.js';
+import denormalize from './denormalize.js';
 
 const config = {
   startId: 2019,
-  endId: 2208,
+  endId: 2020,
   baseURL: 'http://sofi.virtualfri.id',
 };
 
@@ -62,10 +64,9 @@ const fetchSidang = async (id) => {
     $(tables[0]).attr('id', 'data-table');
 
     const rows = $('#data-table > tbody > tr');
-    const data = {};
+    let data = {};
 
     rows.each((index, row) => {
-      if (index === 0) return true;
       const tds = $(row).find('td');
       const name = $(tds[0]).text().trim();
 
@@ -74,32 +75,19 @@ const fetchSidang = async (id) => {
 
       const childElement = valueElement.children().first();
 
-      // console.log(childElement.prop('tagName'));
-
       switch (childElement.prop('tagName')) {
         case 'A':
           value = $(childElement).attr('href');
-          break;
-        case 'P':
-          value = valueElement
-            .text()
-            .trim()
-            .split('\n')
-            .map(
-              (val) =>
-                val
-                  // .replace(/([a-zA-Z ])/g, '')
-                  .trim(),
-              // .split(':')[1],
-            );
           break;
         default:
           value = valueElement.text().trim();
       }
 
-      Object.assign(data, { [name.toLowerCase().replace(' ', '_')]: value });
+      const key = name.toLowerCase().replace(' ', '_');
+      const transformedValue = normalize.transform(key, value);
+      data = { ...data, ...transformedValue };
     });
-    return { id, data };
+    return { id, ...data };
   } catch (err) {
     return null;
   }
@@ -116,20 +104,20 @@ const fetchSidang = async (id) => {
     });
 
     const sidangs = [];
+    let columns = [];
 
     for (let id = config.startId; id < config.endId; id++) {
       const sidang = await fetchSidang(id);
-      if (sidang) {
-        sidangs.push(sidang);
-        sleep(1000);
-      }
+
+      if (!sidang) continue;
+      sidangs.push(denormalize.transform(sidang));
+      sleep(1000);
     }
 
-    stringify(sidangs, { columns: Object.keys(sidangs[0]) }, (err, data) => {
-      fs.writeFileSync(
-        'out.csv',
-        Object.keys(sidangs[0]).join(',') + '\n' + data,
-      );
+    columns = Object.keys(sidangs[0] || {});
+    stringify(sidangs, { columns }, (err, data) => {
+      if (err) return;
+      fs.writeFileSync('out.csv', columns.join(',') + '\n' + data);
     });
   } catch (err) {
     console.log(err);
