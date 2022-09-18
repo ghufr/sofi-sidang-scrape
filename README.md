@@ -12,5 +12,6 @@ A script to scrape sidang from `sofi.virtualfri.id`
 
 ## Limitation
 
-1. Cannot get sidang's schedule,since the APP limit who can see the schedule.
-2. Cannot download document file automatically (only the url).
+1. You'll need an SSO account.
+2. Cannot get sidang's schedule, since the APP limit who can see the schedule.
+3. Cannot download document file automatically (only the url).
