@@ -14,12 +14,7 @@ import { sleep } from './utils.js';
 
 import normalize from './normalize.js';
 import denormalize from './denormalize.js';
-
-const config = {
-  startId: 2019,
-  endId: 2020,
-  baseURL: 'http://sofi.virtualfri.id',
-};
+import config from './config.js';
 
 const jar = new CookieJar();
 
@@ -111,7 +106,7 @@ const fetchSidang = async (id) => {
 
       if (!sidang) continue;
       sidangs.push(denormalize.transform(sidang));
-      sleep(1000);
+      sleep(config.delay);
     }
 
     columns = Object.keys(sidangs[0] || {});
